@@ -1,4 +1,5 @@
 Image-Analyser
+<<<<<<< HEAD
 ==============
 A small class file which simplifies image analysis in processing scripts.
 Feel free to add functions or make the existing ones more performant.
