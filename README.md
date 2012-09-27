@@ -16,5 +16,10 @@ Usage
 There's some sample code which demonstrates the script, and I think that's all you need.
 It's pretty straight-forward and extremely-commented! ;)
 
+Example
+==============
+Here's a simple script I wrote using this class. ( _Original photo by [Lenny Montana](http://www.flickr.com/photos/27857804@N00/15473862/)_ )
+![example usage of the script](http://i.imgur.com/MCRzk.png "A photo processed by a script using this class.")
+
 
 Enjoy!
