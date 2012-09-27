@@ -1,15 +1,15 @@
 Image-Analyser
 ==============
-A small class file which _simplifies_ image analysing in [_Processing_](http://processing.org/) scripts.
+A small class file which __simplifies__ __image analysing__ in [__Processing__](http://processing.org/) scripts.
 Feel free to add functions or make the existing ones more performant. ;)
 
 Features
 ==============
-- easy looping trough pixels
-- calculate the average color value around a given pixel
-- manipulate pixels/colors with [x,y] instead of [offset]
-- automatically restrain the surface being analysed to the image surface
-- easily manage color transparency
+- __easy looping__ trough pixels
+- calculate the __average color__ value around a given pixel
+- manipulate pixels/colors with __[x,y]__ instead of [offset]
+- automatically __restrain__ the surface being analysed to the image surface
+- easily manage color __transparency__
 
 Usage
 ==============
