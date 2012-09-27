@@ -1,10 +1,4 @@
 import processing.opengl.*;
-import processing.pdf.*;
-//import java.awt.Color;
-
-// variables for saving to PDF
-boolean savePDF = false;
-boolean stop = false;
 
 // program variables
 PImage src_img;
@@ -61,6 +55,8 @@ void draw() {
       int x = src_scanner.get_row();
       
       // analyse some data around the current pixel
+      // you can extract brightness, saturation, rgb values etc... from it
+      // (like any regular color-type-variable in processing)
       color c = src_scanner.get_circular_average(x, y, rad, true);
       
       // draw some circles depending on the results of the analyser
