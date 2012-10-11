@@ -160,5 +160,25 @@ class img_analyser {
   color fade(color c, int transparency){
     return color( red(c), green(c), blue(c), map(transparency, 0, 100, 0, 255));
   }
+  
+  // a function that allows you to search for a given color around a given pixel
+  // it returns the [x,y] location of it
+  // tolerance is from 0 to 1 and affect the color matching toleranc
+  // force_return makes the function return the most matching color location if the tolerance parameter is not given.
+  // use amount_of_colors to control the number of lacations returned. Set to 0 to return all matched colors.
+  //int[] get_same_color_around(int center_x, int center_y, int search_radius, float tolerance, boolean force_return, int amount_of_colors){
+    // check if the center is located within the image
+    // or maybe this isn't really necessary ... ?
+    
+    // the color is the one in the center
+    //color c = pixel(center_x, center_y);
+    
+    // this calculates the difference between the R, G and B values.
+    
+    // calculate the difference between HSL values.
+    
+    // mix them
+    
+  //}
 }
 
