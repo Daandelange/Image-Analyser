@@ -4,7 +4,7 @@ import processing.opengl.*;
 PImage src_img;
 
 // holds our scanner tool class
-img_analyser src_scanner;
+img_analyser src_analyser;
 
 void setup() {
   
@@ -15,7 +15,7 @@ void setup() {
   size( src_img.width, src_img.height, OPENGL );
   
   // load our image analyser class
-  src_scanner = new img_analyser( src_img );
+  src_analyser = new img_analyser( src_img );
   
   // you could load more scanners if you need to scan more images
   //sampled_scanner = new img_analyser(sampled_img);
@@ -39,7 +39,7 @@ void draw() {
   
   // prepare some variables
   int step = 12;
-  int rad = 20;
+  int rad = 10;
   
   // prepare for drawing (reset)
   stroke(0, 0, 0, 30);
@@ -47,45 +47,50 @@ void draw() {
   noStroke();
   
   // scan some lines
-  while( src_scanner.line(step) ){
-    int y = src_scanner.get_line();
+  img_scanner myscanner = new img_scanner(0, 0, src_img.width, src_img.height, "row_line");
+
+  while( myscanner.process(step) ){
+    int y = myscanner.get_y();
+    int x = myscanner.get_x();
     
-    // scan some rows
-    while( src_scanner.row(step) ){
-      int x = src_scanner.get_row();
+    // analyse some data around the current pixel
+    // you can extract brightness, saturation, rgb values etc... from it
+    // (like any regular color-type-variable in processing)
+    color c = src_analyser.get_circular_average(x, y, rad, true);
       
-      // analyse some data around the current pixel
-      // you can extract brightness, saturation, rgb values etc... from it
-      // (like any regular color-type-variable in processing)
-      color c = src_scanner.get_circular_average(x, y, rad, true);
+    // draw some circles depending on the results of the analyser
+    noStroke();
+    fill(src_analyser.fade(c, 50));
+    int rad2 = (int) map(brightness(c), 0, 255, step/2, step); 
+    ellipse(x, y, rad2*1.2, rad2*1.2);
       
-      // draw some circles depending on the results of the analyser
-      noStroke();
-      fill(src_scanner.fade(c, 50));
-      int rad2 = (int) map(brightness(c), 0, 255, step/2, step); 
-      ellipse(x, y, rad2*1.2, rad2*1.2);
+    // put some lighter circles "above" all other pixels
+    // ( a messy but effective solution to translate in front of the 2D drawing zone )
+    pushMatrix();
+    translate(0, 0, map(brightness(c), 0, 255, 0, 10) );
+    ellipse(x, y, rad2*1.2, rad2*1.2);
+    popMatrix();
       
-      // put some lighter circles "above" all other pixels
-      // ( a messy but effective solution to translate in front of the 2D drawing zone )
-      pushMatrix();
-      translate(0, 0, map(brightness(c), 0, 255, 0, 10) );
-      ellipse(x, y, rad2*1.2, rad2*1.2);
-      popMatrix();
+    // draw some kind of tiny square
+    stroke(0,0,0,40);
+    strokeWeight(1);
+    noStroke();
+    fill(c);
+    rect(x, y, 7,7);
       
-      // draw some kind of tiny square
-      stroke(0,0,0,40);
-      strokeWeight(1);
-      noStroke();
-      fill(c);
-      rect(x, y, 7,7);
+    // update some variables depending on the current pixels (dynamic stepping, yesh :D )
+    // this technique makes it look "less-digitalish"
+    // (because we use data from the harmonious colors of our photo that is captured from an analogic environment)
+    rad = (int) map(brightness(c), 0, 255, 15, 5);
+    step = (int) map(saturation(c), 0, 255, 20, 40);
       
-      // update some variables depending on the current pixels (dynamic stepping, yesh :D )
-      // this technique makes it look "less-digitalish"
-      // (because we use data from the harmonious colors of our photo that is captured from an analogic environment)
-      rad = (int) map(brightness(c), 0, 255, 30, 20);
-      step = (int) map(saturation(c), 0, 255, 4, 25);
-    }
-    
+    /*
+    print(x);
+    print(" - ");
+    print(y);
+    print(" - ");
+    print(myscanner.offset_y);
+    println(""); // */
   }
   
   

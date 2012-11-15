@@ -1,11 +1,11 @@
 // a helper class to facilitate analysing images.
+// ideas for later:
+// - add ability to pre_scan images for faster processing while scanning -> calculating
 
 class img_analyser {
   PImage img;
   int img_h, img_w;
-
-  // for the row() and line() pointers;
-  int row_pointer, line_pointer;
+  img_scanner main_scanner;
 
   // setup the analyser class
   img_analyser( PImage image_to_define ) {
@@ -25,13 +25,14 @@ class img_analyser {
     // load its pixels
     img.loadPixels();
 
-    // reset row and line pointers
-    line_pointer = row_pointer = 0;
+    // (re)set the scanner instance (by creating a fresh one)
+    main_scanner = new img_scanner( 0, 0, img_h, img_w, "row_line");
   }
 
   // gets avgerage pixel data around a pixel of the loaded image.
   // units are pixels
   // use_importance will have farther pixels have less importance then the ones in the center
+  // todo: rename this function to get_average_color with a shape argument
   color get_circular_average(int x, int y, float rad, boolean use_importance) {
     //if(rad==null) rad=3.0;
     //if(use_importance=null) use_importance = true;
@@ -44,6 +45,8 @@ class img_analyser {
     int scan_height = (int) rad * 2;
 
     // define the area being scanned
+    // maybe this can be removed so that the scanner also scans zones outside of the image
+    // drawing will only be possible on the image, but this will prevent getting those stupid borders around the image
     int[] zone = restrict_area_to_img(scan_x, scan_y, scan_width, scan_height);
     scan_x      = zone[0];
     scan_y      = zone[1];
@@ -53,13 +56,17 @@ class img_analyser {
     // init returning data
     float[] result = new float[3]; // r,g,b
     float importance = 0.0; // holds the importance of the result values (to be divided)
-
+    
     // start analysing each pixel around it
     // every line
-    for (int px = scan_x; px <= scan_x + scan_width; px++) {
-
+    img_scanner scanner = new img_scanner( 0 , 0, img_h, img_w, "row_line");
+    while( scanner.process(1) ){
+    //for (int px = scan_x; px <= scan_x + scan_width; px++) {
+      int px = scanner.get_x();
+      int py = scanner.get_y();
+      
       // every column
-      for (int py = scan_y; py <= scan_y + scan_height; py++) {
+      //for (int py = scan_y; py <= scan_y + scan_height; py++) {
         // calculate the distance from the center
         float dst = dist(x, y, px, py);
 
@@ -84,7 +91,7 @@ class img_analyser {
         result[1] += green( c ) * tmp_importance;
         result[2] += blue( c ) * tmp_importance;
         importance += tmp_importance ;
-      }
+      //}
     }
 
     // sum values
@@ -112,48 +119,16 @@ class img_analyser {
     };
     return ret;
   }
-
-  // utility to loop pixels of the image
-  boolean row() {
-    return this.row(1);
-  }
-  boolean row(int step_size) {
-    // there remain rows to scan
-    if(row_pointer + step_size < img_w){
-      row_pointer += step_size;
-      return true;
-    }
-    // end reached, reset pointer to new line
-    else {
-      row_pointer=0;
-      return false;
-    }
-  }
-  int get_row(){ return row_pointer; }
-  
-  boolean line() {
-    return this.line(1);
-  }
-  boolean line(int step_size) {
-    // there remain rows to scan
-    if(line_pointer + step_size <= img_h){
-      line_pointer += step_size;
-      return true;
-    }
-    // end reached, reset pointer to new line
-    else {
-      line_pointer=0;
-      return false;
-    }
-  }
-  int get_line(){ return line_pointer; }
   
   // function to get a pixel (color format) with x and y rather than offset
   color pixel(int x, int y){
     // check values
     if(x < 0 || y < 0 || x > img_w || y > img_h) return color(0,0,0); // total darkness! mouhahahahaha
     
-    return img.pixels[(int)( img_w * (y-1) + x )];
+    // get the correct Y multiplier
+    if(y > 0) y -= 1;
+    
+    return img.pixels[(int)( img_w * (y) + x )];
   }
   
   // color tool to return a more transparent color
@@ -166,19 +141,34 @@ class img_analyser {
   // tolerance is from 0 to 1 and affect the color matching toleranc
   // force_return makes the function return the most matching color location if the tolerance parameter is not given.
   // use amount_of_colors to control the number of lacations returned. Set to 0 to return all matched colors.
-  //int[] get_same_color_around(int center_x, int center_y, int search_radius, float tolerance, boolean force_return, int amount_of_colors){
+  int[] get_same_color_around(int center_x, int center_y, int search_radius, float tolerance, boolean force_return, int amount_of_colors){
     // check if the center is located within the image
-    // or maybe this isn't really necessary ... ?
+    // or maybe this isn't really necessary ... ? ... [or] maybe we should rather check if a color is within the scanned area.
     
     // the color is the one in the center
-    //color c = pixel(center_x, center_y);
+    color c = pixel(center_x, center_y);
     
+    // loop trough each pixel around the center pixel
+    
+    
+    // and finaly we return our amazing result :p
+    return new int[2];
+  }
+  
+  // a function that returns a float from 0 to 1
+  // 0 = they dont match at all; 
+  // 1 = they match perfectly
+  float match_colors(color c1, color c2){
     // this calculates the difference between the R, G and B values.
+    float diff_rgb = dist(red(c1), green(c1), blue(c1), red(c2), green(c2), blue(c2));
     
     // calculate the difference between HSL values.
+    float diff_hsb = diff_rgb; // todo, but we haz not yet hsl conversion support :p
     
-    // mix them
-    
-  //}
+    // mix them and return
+    return (float) ((diff_rgb+diff_hsb)/2);
+  }
 }
 
+// todo and ideas
+// enable parallel usage of multiple row() and line() --> create instances for them?
